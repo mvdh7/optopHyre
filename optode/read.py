@@ -10,9 +10,7 @@ def read_pyrosci(filename):
     i = 0
     sensor_type = "Unknown"
     while not lines[i].startswith("Date"):
-        if lines[i].startswith("#Device Name") or lines[i].startswith(
-            "#Device:"
-        ):
+        if lines[i].startswith("#Device Name") or lines[i].startswith("#Device:"):
             if "Pico" in lines[i]:
                 sensor_type = "Pico"
             elif "AquapHOx" in lines[i]:
@@ -65,13 +63,9 @@ def read_pyrosci(filename):
     # Wrangle datetime
     if sensor_type == "Pico":
         data["datetime"] = data.date + " " + data.time
-        data["datetime"] = pd.to_datetime(
-            data.datetime, format="%d-%m-%Y %H:%M:%S.%f"
-        )
+        data["datetime"] = pd.to_datetime(data.datetime, format="%d-%m-%Y %H:%M:%S.%f")
     elif sensor_type == "AquapHOx":
-        data["datetime"] = pd.to_datetime(
-            data.datetime, format="%Y-%m-%d %H:%M:%S"
-        )
+        data["datetime"] = pd.to_datetime(data.datetime, format="%Y-%m-%d %H:%M:%S")
 
     # Drop NaNs and unnecessary columns
     data.dropna()

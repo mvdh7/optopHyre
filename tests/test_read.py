@@ -1,3 +1,6 @@
 import optode
 
-data = optode.read.read_pyrosci("data/underway_pH_1.txt")
+filenames = ["data/underway_pH_1.txt"]
+
+for filename in filenames:
+    data = optode.read.read_pyrosci(filename)

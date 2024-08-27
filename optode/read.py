@@ -35,14 +35,38 @@ def read_pyrosci(filename):
         "ldev (nm) [A Ch.1 Main]": "ldev",
         "Status [A Ch.1 Main]": "status_pH",
         "Status [A Ch.1 CompT]": "status_temperature",
-    }
+    },
+       "AquapHOx": {
+            "DateTime (YYYY-MM-DD hh:mm:ss)": "datetime",
+            "dphi (0.001 °)": "phase_shift",
+            "dphi (0.001 ¡)" : "phase_shift",
+            "umolar (0.001 umol/L)": "dissolved_oxygen",
+            "mbar (0.001 mbar)": "partial_pressure_oxygen",
+            "airSat (0.001 %air sat)": "dissolved_oxygen_air_saturation",
+            "tempSample (0.001 °C)": "solution_temperature",
+            "tempSample (0.001 ¡C)" : "solution_temperature",
+            "tempCase (0.001 °C)": "device_temperature",
+            "tempCase (0.001 ¡C)" : "device_temperature",
+            "signalIntensity (0.001 mV)": "signal_intensity",
+            "ambientLight (0.001 mV)": "ambient_light",
+            "pressure (0.001 mbar)": "air_pressure",
+            "humidity (0.001 %RH)": "device_humidity",
+            "resistorTemp (0.001 Ohm or 0.001 mV)": "resistence_sample",
+            "percentO2 (0.001 %O2)": "oxygen_volume_fraction",
+            "tempOptical (0.001 °C)": "temperature_opt_sensor",
+            "tempOptical (0.001 ¡C)" : "temperature_opt_sensor",
+            "pH (0.001 pH)": "pH_sensor",
+        }
     }
     data = data.rename(columns=rn[sensor_type])
     # Wrangle datetime
-    data["datetime"] = data.date + " " + data.time
-    data["datetime"] = pd.to_datetime(
-        data.datetime, format="%d-%m-%Y %H:%M:%S.%f"
-    )
+    if sensor_type =="Pico":
+        data["datetime"] = data.date + " " + data.time
+        data["datetime"] = pd.to_datetime(
+            data.datetime, format="%d-%m-%Y %H:%M:%S.%f"
+        )
+        
+        
     # Drop NaNs and unnecessary columns
     data.dropna()
     cols = [

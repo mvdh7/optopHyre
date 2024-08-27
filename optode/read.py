@@ -10,7 +10,9 @@ def read_pyrosci(filename):
     i = 0
     sensor_type = "Unknown"
     while not lines[i].startswith("Date"):
-        if lines[i].startswith("#Device Name") or lines[i].startswith("#Device:"):
+        if lines[i].startswith("#Device Name") or lines[i].startswith(
+            "#Device:"
+        ):
             if "Pico" in lines[i]:
                 sensor_type = "Pico"
             elif "AquapHOx" in lines[i]:
@@ -36,6 +38,11 @@ def read_pyrosci(filename):
             "ldev (nm) [A Ch.1 Main]": "ldev",
             "Status [A Ch.1 Main]": "status_pH",
             "Status [A Ch.1 CompT]": "status_temperature",
+            "Date [A T1]": "date_T",
+            "Time [A T1]": "time_T",
+            " dt (s) [A T1]": "seconds_T",
+            "Sample Temp. (°C) [A T1]": "temperature_T",
+            "Status [A T1]": "status_temperature_T",
         },
         "AquapHOx": {
             "DateTime (YYYY-MM-DD hh:mm:ss)": "datetime",
@@ -63,14 +70,34 @@ def read_pyrosci(filename):
     # Wrangle datetime
     if sensor_type == "Pico":
         data["datetime"] = data.date + " " + data.time
-        data["datetime"] = pd.to_datetime(data.datetime, format="%d-%m-%Y %H:%M:%S.%f")
+        data["datetime"] = pd.to_datetime(
+            data.datetime, format="%d-%m-%Y %H:%M:%S.%f"
+        )
+        data["datetime_T"] = data.date_T + " " + data.time_T
+        data["datetime_T"] = pd.to_datetime(
+            data.datetime_T, format="%d-%m-%Y %H:%M:%S.%f"
+        )
+        data_T = data[[c for c in data.columns if c.endswith("_T")]]
+        data = data[[c for c in data.columns if c not in data_T.columns]]
     elif sensor_type == "AquapHOx":
-        data["datetime"] = pd.to_datetime(data.datetime, format="%Y-%m-%d %H:%M:%S")
-        data["seconds"] = (data.datetime - data.datetime.iloc[0]).dt.total_seconds()
+        data["datetime"] = pd.to_datetime(
+            data.datetime, format="%Y-%m-%d %H:%M:%S"
+        )
+        data["seconds"] = (
+            data.datetime - data.datetime.iloc[0]
+        ).dt.total_seconds()
+        data_T = None
     # Drop NaNs and unnecessary columns
-    data.dropna()
-    cols = list({k for k in rn[sensor_type].values() if k not in ["date", "time"]})
+    data.dropna(how="all", inplace=True)
+    data_T.dropna(how="all", inplace=True)
+    cols = list(
+        {
+            k
+            for k in rn[sensor_type].values()
+            if k not in ["date", "time"] and not k.endswith("_T")
+        }
+    )
     if sensor_type == "Pico":
         cols = ["datetime", *cols]
     data = data[cols]
-    return data
+    return data, data_T

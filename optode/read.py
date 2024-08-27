@@ -66,6 +66,7 @@ def read_pyrosci(filename):
         data["datetime"] = pd.to_datetime(data.datetime, format="%d-%m-%Y %H:%M:%S.%f")
     elif sensor_type == "AquapHOx":
         data["datetime"] = pd.to_datetime(data.datetime, format="%Y-%m-%d %H:%M:%S")
+        data["seconds"] = (data.datetime - data.datetime.iloc[0]).dt.total_seconds()
     # Drop NaNs and unnecessary columns
     data.dropna()
     cols = list({k for k in rn[sensor_type].values() if k not in ["date", "time"]})

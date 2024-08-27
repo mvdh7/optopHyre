@@ -8,12 +8,22 @@ def read_pyrosci(filename):
     with open(filename, "r", encoding="unicode_escape") as f:
         lines = f.read().splitlines()
     i = 0
+    sensor_type = "Unknown"
     while not lines[i].startswith("Date"):
+        if lines[i].startswith("#Device"):
+            if "Pico" in lines[i]:
+                sensor_type = "Pico"
+            elif "AquapHOx" in lines[i]:
+                sensor_type = "AquapHOx"
+            else:
+                print("Unknown sensor.")      
         i += 1
+    assert sensor_type !=  "Unknown"
     # Import data file
     data = pd.read_table(filename, skiprows=i, encoding="unicode_escape")
     # Rename columns
-    rn = {
+    rn = {"Pico":
+        {
         "Date [A Ch.1 Main]": "date",
         "Time [A Ch.1 Main]": "time",
         " dt (s) [A Ch.1 Main]": "seconds",
@@ -26,7 +36,8 @@ def read_pyrosci(filename):
         "Status [A Ch.1 Main]": "status_pH",
         "Status [A Ch.1 CompT]": "status_temperature",
     }
-    data = data.rename(columns=rn)
+    }
+    data = data.rename(columns=rn[sensor_type])
     # Wrangle datetime
     data["datetime"] = data.date + " " + data.time
     data["datetime"] = pd.to_datetime(
@@ -35,7 +46,7 @@ def read_pyrosci(filename):
     # Drop NaNs and unnecessary columns
     data.dropna()
     cols = [
-        k for k in rn.values()
+        k for k in rn[sensor_type].values()
     ]
     cols = ['datetime', *cols]
     data = data[cols]

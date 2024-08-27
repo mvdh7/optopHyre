@@ -30,7 +30,7 @@ def read_pyrosci(filename):
             " dt (s) [A Ch.1 Main]": "seconds",
             "pH [A Ch.1 Main]": "pH",
             "Sample Temp. (°C) [A Ch.1 CompT]": "temperature",
-            "dphi (°) [A Ch.1 Main]": "dphi",
+            "dphi (°) [A Ch.1 Main]": "phase_shift",
             "Signal Intensity (mV) [A Ch.1 Main]": "signal_intensity",
             "Ambient Light (mV) [A Ch.1 Main]": "ambient_light",
             "ldev (nm) [A Ch.1 Main]": "ldev",
@@ -41,22 +41,22 @@ def read_pyrosci(filename):
             "DateTime (YYYY-MM-DD hh:mm:ss)": "datetime",
             "dphi (0.001 °)": "phase_shift",
             "dphi (0.001 ¡)": "phase_shift",
-            "umolar (0.001 umol/L)": "dissolved_oxygen",
-            "mbar (0.001 mbar)": "partial_pressure_oxygen",
-            "airSat (0.001 %air sat)": "dissolved_oxygen_air_saturation",
-            "tempSample (0.001 °C)": "solution_temperature",
-            "tempSample (0.001 ¡C)": "solution_temperature",
-            "tempCase (0.001 °C)": "device_temperature",
-            "tempCase (0.001 ¡C)": "device_temperature",
+            # "umolar (0.001 umol/L)": "dissolved_oxygen",
+            # "mbar (0.001 mbar)": "partial_pressure_oxygen",
+            # "airSat (0.001 %air sat)": "dissolved_oxygen_air_saturation",
+            "tempSample (0.001 °C)": "temperature",
+            "tempSample (0.001 ¡C)": "temperature",
+            "tempCase (0.001 °C)": "temperature_device",
+            "tempCase (0.001 ¡C)": "temperature_device",
             "signalIntensity (0.001 mV)": "signal_intensity",
             "ambientLight (0.001 mV)": "ambient_light",
             "pressure (0.001 mbar)": "air_pressure",
-            "humidity (0.001 %RH)": "device_humidity",
-            "resistorTemp (0.001 Ohm or 0.001 mV)": "resistence_sample",
-            "percentO2 (0.001 %O2)": "oxygen_volume_fraction",
-            "tempOptical (0.001 °C)": "temperature_opt_sensor",
-            "tempOptical (0.001 ¡C)": "temperature_opt_sensor",
-            "pH (0.001 pH)": "pH_sensor",
+            "humidity (0.001 %RH)": "humidity_device",
+            "resistorTemp (0.001 Ohm or 0.001 mV)": "resistance",
+            # "percentO2 (0.001 %O2)": "oxygen_volume_fraction",
+            # "tempOptical (0.001 °C)": "temperature_opt_sensor",
+            # "tempOptical (0.001 ¡C)": "temperature_opt_sensor",
+            "pH (0.001 pH)": "pH",
         },
     }
     data = data.rename(columns=rn[sensor_type])
@@ -66,10 +66,10 @@ def read_pyrosci(filename):
         data["datetime"] = pd.to_datetime(data.datetime, format="%d-%m-%Y %H:%M:%S.%f")
     elif sensor_type == "AquapHOx":
         data["datetime"] = pd.to_datetime(data.datetime, format="%Y-%m-%d %H:%M:%S")
-
     # Drop NaNs and unnecessary columns
     data.dropna()
-    cols = [k for k in rn[sensor_type].values()]
-    cols = ["datetime", *cols]
+    cols = list({k for k in rn[sensor_type].values() if k not in ["date", "time"]})
+    if sensor_type == "Pico":
+        cols = ["datetime", *cols]
     data = data[cols]
     return data

@@ -1,4 +1,4 @@
-import optode
+import optopHyre
 
 filenames = [
     # "data/underway_pH_1.txt",
@@ -9,4 +9,4 @@ filenames = [
 ]
 
 for filename in filenames:
-    data = optode.read_split.read_pyrosci(filename)
+    data = optopHyre.read_split.read_pyrosci(filename)

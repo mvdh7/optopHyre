@@ -46,12 +46,12 @@ def read_pico(filename, skiprows):
         "dphi (°) [A Ch.1 Main]": "phase_shift",
         "Signal Intensity (mV) [A Ch.1 Main]": "signal_intensity",
         "Ambient Light (mV) [A Ch.1 Main]": "ambient_light",
-        # TODO "ldev (nm) [A Ch.1 Main]": "ldev", # TO BE FIXED FOR NOSE CRUISE ENDING WITH 05
         "Status [A Ch.1 Main]": "status_pH",
         "Status [A Ch.1 CompT]": "status_temperature",
     }
     # Optional columns which might not always be present
     optional_columns = {
+        "ldev (nm) [A Ch.1 Main]": "ldev",
         "Date [A T1]": "date_T",
         "Time [A T1]": "time_T",
         " dt (s) [A T1]": "seconds_T",

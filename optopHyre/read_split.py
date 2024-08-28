@@ -122,8 +122,19 @@ def read_aquaphox(filename, skiprows):
         "pH (0.001 pH)": "pH",
     }
     data.rename(columns=rn, inplace=True)  # Apply column renaming
+    
+    # Create a datetime column
     data["datetime"] = pd.to_datetime(data["datetime"], format="%Y-%m-%d %H:%M:%S")
+    
+    # Identify numeric columns (excluding datetime columns)
+    numeric_columns = data.select_dtypes(include=['number']).columns
+    
+    # Divide the numeric columns by 1000
+    data[numeric_columns] = data[numeric_columns] / 1000
+
+    # Create a column with seconds
     data["seconds"] = (data["datetime"] - data["datetime"].iloc[0]).dt.total_seconds()
+
     return data
 
 

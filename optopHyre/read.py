@@ -196,7 +196,7 @@ def folder(folder_path):
     - pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame: Combined datasets for Pico, Pico_T, AquapHOx, and AquapHOx_T.
     """
     print(f'Selected folder: "{folder_path}".')
-    
+
     # Collect all .txt files from the folder and its immediate subfolders (to avoid fetching ChannelData files)
     print("Collecting all text files in selected folder.")
     txt_files = collect_txt_files(folder_path)
@@ -258,17 +258,29 @@ def folder(folder_path):
         if combined_aquaphox_T
         else pd.DataFrame()
     )
-    
+
     # Sort each dataset by the appropriate datetime column
     if not combined_pico_main.empty:
-        combined_pico_main = combined_pico_main.sort_values(by="datetime").reset_index(drop=True)
+        combined_pico_main = combined_pico_main.sort_values(by="datetime").reset_index(
+            drop=True
+        )
     if not combined_pico_T.empty and "datetime_T" in combined_pico_T.columns:
-        combined_pico_T = combined_pico_T.sort_values(by="datetime_T").reset_index(drop=True)
+        combined_pico_T = combined_pico_T.sort_values(by="datetime_T").reset_index(
+            drop=True
+        )
     if not combined_aquaphox_main.empty:
-        combined_aquaphox_main = combined_aquaphox_main.sort_values(by="datetime").reset_index(drop=True)
+        combined_aquaphox_main = combined_aquaphox_main.sort_values(
+            by="datetime"
+        ).reset_index(drop=True)
     if not combined_aquaphox_T.empty and "datetime_T" in combined_aquaphox_T.columns:
-        combined_aquaphox_T = combined_aquaphox_T.sort_values(by="datetime_T").reset_index(drop=True)
-    
+        combined_aquaphox_T = combined_aquaphox_T.sort_values(
+            by="datetime_T"
+        ).reset_index(drop=True)
+
     print("Returned combined datasets.")
-    return combined_pico_main, combined_pico_T, combined_aquaphox_main, combined_aquaphox_T
-    
+    return (
+        combined_pico_main,
+        combined_pico_T,
+        combined_aquaphox_main,
+        combined_aquaphox_T,
+    )

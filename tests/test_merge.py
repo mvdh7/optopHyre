@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy import interpolate
 import optopHyre
 
 # data = optopHyre.read.file(
@@ -12,56 +13,25 @@ import optopHyre
 # ship_data_ = optopHyre.merge.merge(data, ship_data)
 
 # %%
-ship = pd.DataFrame({"x": [1.0, 2, 3, 4, 5]})
-optode = pd.DataFrame(
+ship = pd.DataFrame(
     {
-        "x": [1.1, 1.2, 1.9, 2.1, 4.5, 11.8],
-        "y": [8.1, 8.2, 8.3, 8.4, 8.5, 8.6],
+        "datenum": [1.0, 2, 3, 4, 5],
+        "temperature": [25, 24.5, 26, 28, 29],
+        "salinity": [35.0, 34, 36, 35, 34],
     }
 )
-merged = pd.merge_asof(ship, optode, on="x", tolerance=0.4, direction="nearest")
+optode = pd.DataFrame(
+    {
+        "datenum": [1.1, 1.2, 1.9, 2.1, 4.5, 11.8],
+        "pH": [8.1, 8.2, 8.3, 8.4, 8.5, 8.6],
+        "temperature_ship": 5,
+    }
+)
 
-datenum_ship = ship.x.values  # datenum --- timezone
-datenum_optode = optode.x.values
-pH_optode = optode.y.values
+pH_optode = optode.pH.values
 
-
-def _optode_to_ship(datenum_ship, datenum_optode, pH_optode, tol=None):
-    """Match pH_optode to nearest point in datenum_ship, averaging if multiple values
-    of datenum_optode match the same datenum_ship.
-
-    Parameters
-    ----------
-    datenum_ship : array of float
-        The datenum (decimal days) of the ship/underway data points.
-    datenum_optode : array of float
-        The datenum (decimal days) of the optode sensor data points.
-    pH_optode : array of float
-        The pH values of the optode sensor.
-    tol : float, optional
-        The tolerance for matching between the datenums. The default is None, in which
-        case it is automatically determined as half the distance between datenum_ship
-        entries, which must be evenly spaced.
-
-    Returns
-    -------
-    pH_ship : array of float
-        The pH values matching the datenum_ship entries.
-    """
-    if tol is None:
-        # Find gap between dt_ship entries if not provided by user
-        tol = np.diff(datenum_ship)
-        assert np.allclose(
-            tol, np.mean(tol), rtol=0, atol=1e-8
-        ), "datenum_ship is not evenly spaced!"
-        tol = np.mean(tol) / 2
-    # Get average pH for each ship point
-    pH_ship = np.full(datenum_ship.shape, np.nan)
-    for i, datenum in enumerate(datenum_ship):
-        L = (datenum_optode >= datenum - tol) & (datenum_optode < datenum + tol)
-        if np.any(L):
-            pH_ship[i] = np.nanmean(pH_optode[L])
-    return pH_ship
+interp_vars = ["temperature", "salinity"]
+interp_vars = "temperature"
 
 
-pH_ship = _optode_to_ship(datenum_ship, datenum_optode, pH_optode, tol=None)
+# pH_ship = _optode_to_ship(datenum_ship, datenum_optode, pH_optode, tol=None)
